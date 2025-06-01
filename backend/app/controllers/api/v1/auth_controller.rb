@@ -2,13 +2,16 @@ class Api::V1::AuthController < ApplicationController
   skip_before_action :authenticate_request, only: [:google_oauth2]
   
   def google_oauth2
+    frontend_url = ENV['FRONTEND_URL']
+    raise "FRONTEND_URL environment variable is not set" if frontend_url.blank?
+    
     user = User.from_omniauth(request.env["omniauth.auth"])
     
     if user.persisted?
       token = generate_jwt_token(user)
-      redirect_to "#{ENV['FRONTEND_URL'] || 'http://localhost:5173'}/home?token=#{token}"
+      redirect_to "#{frontend_url}/home?token=#{token}"
     else
-      redirect_to "#{ENV['FRONTEND_URL'] || 'http://localhost:5173'}/auth/error"
+      redirect_to "#{frontend_url}/auth/error"
     end
   end
 
