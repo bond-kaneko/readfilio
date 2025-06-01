@@ -14,16 +14,16 @@ function App() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const API_URL = import.meta.env.VITE_API_URL || (() => { throw new Error('VITE_API_URL is not defined') })()
+
   useEffect(() => {
     checkAuthStatus()
     
-    // URLからトークンを取得（Google認証後のリダイレクト）
     const urlParams = new URLSearchParams(window.location.search)
     const token = urlParams.get('token')
     
     if (token) {
       localStorage.setItem('token', token)
-      // URLからトークンパラメータを削除
       window.history.replaceState({}, document.title, window.location.pathname)
       checkAuthStatus()
     }
@@ -31,14 +31,13 @@ function App() {
 
   const checkAuthStatus = async () => {
     const token = localStorage.getItem('token')
-    
     if (!token) {
       setLoading(false)
       return
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/auth/me', {
+      const response = await fetch(`${API_URL}/api/v1/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -60,13 +59,13 @@ function App() {
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/google_oauth2'
+    window.location.href = `${API_URL}/auth/google_oauth2`
   }
 
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token')
-      await fetch('http://localhost:3000/api/v1/auth/logout', {
+      await fetch(`${API_URL}/api/v1/auth/logout`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

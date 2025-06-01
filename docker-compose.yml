@@ -20,13 +20,14 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT:-3000}:3000"
     environment:
       DATABASE_URL: postgresql://postgres:password@db:5432/readfolio_development
       RAILS_ENV: development
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      FRONTEND_URL: http://localhost:5173
+      FRONTEND_URL: http://${FRONTEND_HOST:-localhost}:${FRONTEND_PORT:-5173}
+      BACKEND_URL: http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-3000}
     volumes:
       - ./backend:/app
       - bundle_cache:/usr/local/bundle
@@ -44,9 +45,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     environment:
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: http://${BACKEND_HOST:-localhost}:${BACKEND_PORT:-3000}
       CHOKIDAR_USEPOLLING: true
     volumes:
       - ./frontend:/app
